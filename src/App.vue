@@ -1,32 +1,35 @@
 <template>
   <div id="app">
-    <div id="nav">
-      <router-link to="/">Home</router-link> |
-      <router-link to="/about">About</router-link>
+    <div id="page-nav-wrap" v-if="!$route.meta.noShowNav">
+      <PageNav />
     </div>
-    <router-view/>
+    <div class="page-content-wrap">
+      <router-view/>
+    </div>
   </div>
 </template>
+<script lang="ts">
+import { Vue, Component } from 'vue-property-decorator';
+import PageNav from '@/components/pageNavCom/index.vue';
 
-<style lang="less">
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
+@Component({
+  name: 'app',
+  components: { PageNav }
+})
+export default class App extends Vue {
+
 }
-
-#nav {
-  padding: 30px;
-
-  a {
-    font-weight: bold;
-    color: #2c3e50;
-
-    &.router-link-exact-active {
-      color: #42b983;
+</script>
+<style lang="less">
+  #app {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    #nav-wrap {
+    }
+    .page-content-wrap {
+      overflow-y: auto;
+      flex: 1;
     }
   }
-}
 </style>
