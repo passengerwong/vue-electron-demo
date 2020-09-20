@@ -145,7 +145,7 @@ export default class MenuManagement extends Vue {
   toSaveData(list: any[], targetList: any[]) { // 去保存处理数据
     // 处理被选中的内容
     return list.filter((item: any) => {
-      if (item.children && targetList.find(v => v.id.includes(item.id))) {
+      if (item.children && targetList.find(v => v.id.includes(item.id))) { // 待修改（如果有children的情况通过drag后变化位置无法通过includes判断）
         item.children = this.toSaveData(item.children, targetList);
         return item;
       } else if (targetList.find(v => v.id === item.id)) { // 已经有了

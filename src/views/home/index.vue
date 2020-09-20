@@ -5,6 +5,7 @@
       <div class="btn-wrap">
         <el-button type='primary' @click="toQueryData">查询</el-button>
       </div>
+      <div>000(((((9----{{userInfo}}</div>
       <div class="datebar">
         <DateSelectCom :filterDateArr="dateFilterArr" v-model="dateSel" />
       </div>
@@ -37,6 +38,10 @@ export default class IndexPage extends Vue {
   dateFilterArr: any[] = [{ label: '前天', code: '01' }, { label: '昨天', code: '02' }];
   dateSel: any[] = [];
 
+  get userInfo() {
+    return this.$store.state.userInfo;
+  }
+
   created() {
     // this.$http.get('/test/getSearchList').then((res: any) => {
     //   const { data } = res;
@@ -44,6 +49,7 @@ export default class IndexPage extends Vue {
     //     this.processListData(data);
     //   }
     // });
+    window.iiff = this;
   };
   processListData(data: any) {
     const list: any[] = data.map((item: any) => {

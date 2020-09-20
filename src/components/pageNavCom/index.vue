@@ -59,13 +59,13 @@ export default class PageNavCom extends Vue {
   //   }
   // }
   async created() {
-    window.iiiff = this;
     await this.queryMenuList();
     this.initRouter();
   };
   queryMenuList() { // 查询菜单请求
-    return this.$http.get('/index/getMenus').then((res: any) => {
+    return this.$http.get('/auth/findMenusByOA').then((res: any) => {
       const { data } = res;
+      console.log('fdsfd', data);
       if (data.data && data.data.length) {
         this.menuListData = data.data;
       }
@@ -102,10 +102,13 @@ export default class PageNavCom extends Vue {
 }
 </script>
 <style lang="less">
+  @navPrimaryColor: rgb(70, 76, 91);
   @hoverColor:  rgba(25, 158, 216, 1);
+  @normalFontColor: #ccc;
+  @hoverFontColor:#fff;
   .page-nav-com{
     height: 80px;
-    background-color: rgba(70, 76, 91, 1);
+    background-color: @navPrimaryColor;
     display: flex;
     align-items: center;
     padding: 0 12px;
@@ -127,7 +130,7 @@ export default class PageNavCom extends Vue {
       .el-menu-demo {
         height: 100%;
         border: none;
-        background-color: rgba(70, 76, 91, 1);
+        background-color: @navPrimaryColor;
         .el-submenu, .el-submenu__title {
           height: 100%;
           display: flex;
@@ -139,16 +142,16 @@ export default class PageNavCom extends Vue {
           height: 100%;
           display: flex;
           align-items: center;
-          color: #ccc;
+          color: @normalFontColor;
           &.is-active, &:hover {
             border: none;
             background-color: @hoverColor;
-            color: #fff;
+            color: @hoverFontColor;
             i {
-              color: #fff;
+              color: @hoverFontColor;
             }
             .el-submenu__title {
-              color: #fff;
+              color: @hoverFontColor;
             }
           }
 
@@ -158,7 +161,7 @@ export default class PageNavCom extends Vue {
     .user-set {
       flex-shrink: 0;
       display: flex;
-      color: #ccc;
+      color: @normalFontColor;
       height: 100%;
       li {
         height: 100%;
@@ -166,6 +169,7 @@ export default class PageNavCom extends Vue {
         text-decoration: underline;
         &:hover {
           background-color: @hoverColor;
+          color: @hoverFontColor;
         }
       }
     }

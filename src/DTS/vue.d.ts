@@ -7,6 +7,7 @@ declare module 'vue/types/vue' {
     $message: (opt: any) => void;
     $router: VueRouter;
     $route: Route;
+    $store: any;
   }
 }
 

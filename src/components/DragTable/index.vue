@@ -28,7 +28,7 @@
         @size-change="handleSizeChange"
         @current-change="handleCurrentChange"
         :current-page="currentPage"
-        :page-sizes="$attrs.pageSizes || [100, 200, 300, 400]"
+        :page-sizes="$attrs.pageSizes || [10, 20, 30, 50]"
         :page-size="$attrs.pageSizes && $attrs.pageSizes[0] || 100"
         layout="total, sizes, prev, pager, next, jumper"
         :total="$attrs.pageTotal || 0">

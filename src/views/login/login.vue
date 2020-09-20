@@ -18,6 +18,7 @@
 </template>
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator';
+import * as Tools from './tools/loginTool';
 
 @Component({
   name: 'login'
@@ -44,7 +45,39 @@ export default class Login extends Vue {
       });
       return;
     }
-    console.log('登录');
+    console.log('开始登录流程');
+    this.$http.post('/login', { userName, passWord }).then((res: any) => {
+      console.log('----登录成功', res);
+      const { data } = res;
+      if (data && data.code === '000000') {
+        this.successfulLogin();
+      } else {
+        this.$message({ type: 'error', message: data.msg });
+        this.loginFailed();
+      }
+    }).catch((err: any) => {
+      console.log('登录异常：', err);
+      this.loginFailed();
+    });
+  }
+  successfulLogin() { // 登录成功后回调
+    // 登录成功后，更新vuex和localstroge中的登录状态和用户信息
+    this.$message({ type: 'success', message: '登录成功' });
+    this.$store.commit('updateLoginStatus', true);
+    Tools.setLocalStorageItem('loginStatus', 1);
+    const { isNeedBack } = this.$route.query;
+    console.log('------', isNeedBack);
+    setTimeout(() => {
+      if (isNeedBack) { // 返回登录前的页面
+        return this.$router.go(-1);
+      }
+      this.$router.push('/');
+    }, 500);
+  }
+  loginFailed() { // 登录失败
+    // 登录使用，清空vuex和localstroge中登录信息和登录状态
+    // Tools.setLocalStorageItem('loginStatus', '');
+    // this.$store.commit('updateLoginStatus', '0');
   }
 }
 </script>

@@ -5,10 +5,10 @@
         <el-form ref="searchform" :model="searchForm" label-width="80px">
           <el-row>
             <el-col :span='5'>
-              <el-form-item label="账户"><el-input size="mini" v-model="searchForm.accmount"></el-input></el-form-item>
+              <el-form-item label="账户"><el-input size="mini" v-model.trim="searchForm.accmount"></el-input></el-form-item>
             </el-col>
             <el-col :span='5'>
-              <el-form-item label="姓名"><el-input size="mini" v-model="searchForm.name"></el-input></el-form-item>
+              <el-form-item label="姓名"><el-input size="mini" v-model.trim="searchForm.name"></el-input></el-form-item>
             </el-col>
             <el-col :span="2">
               <el-form-item class="cus-item">
@@ -17,7 +17,7 @@
             </el-col>
             <el-col :span="2">
               <el-form-item class="cus-item">
-                <el-button size='mini' type="primary">查询</el-button>
+                <el-button size='mini' type="primary" @click="queryUserData">查询</el-button>
               </el-form-item>
             </el-col>
           </el-row>
@@ -26,11 +26,18 @@
       <div class="btn-wrap">
         <el-button type="primary" size="mini" @click="addData">新增</el-button>
         <!-- <el-button type="primary" size="mini">导出</el-button> -->
-        <ExportFileCom :beforeExportFile="beforeExportFile" />
+        <ExportFileCom :beforeExportFile="beforeExportFile" @handleCurrentChange="handleCurrentChange" />
       </div>
     </div>
     <div class="query-result">
-      <DragTable :columnList="tableColumnList" :tableData="tableData" :noDrag='true' :paginationShow="true">
+      <DragTable
+        :columnList="tableColumnList"
+        :tableData="tableData"
+        :noDrag='true'
+        :paginationShow="true"
+        @handleSizeChange="handleSizeChange"
+        @handleCurrentChange="handleCurrentChange"
+      >
         <template #cus-table-column="data">
           <el-table-column
           v-for="(item, idx) in data.columnData"
@@ -70,6 +77,10 @@ import tableColumn, { TableColumns } from './ts/tableColumnConfig';
 import FormBody from './formBody.vue';
 import DragTable from '@/components/DragTable/index.vue';
 import ExportFileCom from '@/components/exportFile/index.vue';
+interface QueryParams {
+  page: number;
+  pageSize: number;
+}
 
 @Component({
   name: 'userRightManagement',
@@ -82,6 +93,10 @@ export default class UserRightManagement extends Vue {
     name: '',
     checked: ''
   };
+  queryUserDataParam: QueryParams = {
+    page: 1,
+    pageSize: 10
+  }
   tableColumnList: TableColumns[] = tableColumn;
   tableData: any[] = [
     { one: 'dfds', two: 'fsd', three: 'fds', four: 'fdsfsd' },
@@ -91,7 +106,36 @@ export default class UserRightManagement extends Vue {
     { one: 'dfds', two: 'fsd', three: 'fds', four: 'fdsfsd' }
   ];
   dialogTableVisible = false; // 新增、修改用户
+  mounted() {
+    this.queryUserData();
+  };
   // methods
+  getQueryParams() { // 处理请求参数
+    const { page, pageSize } = this.queryUserDataParam;
+    const form = { ...this.searchForm };
+    return { page, pageSize, ...form };
+  }
+  queryUserData() {
+    const param = this.getQueryParams();
+    this.$http.get('/auth/userList', { params: param }).then((res: any) => {
+      console.log('用户列表数据', res);
+    }).catch((err: any) => {
+      console.log('查询用户列表数据失败：', err);
+    });
+    // /auth/userList?page=0&pageSize=10
+  };
+  handleSizeChange(arg: any) {
+    const [pageSize] = arg;
+    Object.assign(this.queryUserDataParam, { page: 1, pageSize });
+    this.queryUserData();
+    console.log('size change', pageSize);
+  };
+  handleCurrentChange(arg: any) {
+    const [page] = arg;
+    Object.assign(this.queryUserDataParam, { page });
+    this.queryUserData();
+    console.log('current change', page);
+  }
   editData(item: any) { // 编辑数据按钮
     console.log('编辑：', item);
     this.dialogTableVisibleToggle();

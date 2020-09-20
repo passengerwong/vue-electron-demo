@@ -17,7 +17,7 @@
     "@types/echarts": "^4.6.5",
     "@types/electron-devtools-installer": "^2.2.0",
     "@types/lodash": "^4.14.161",
-    "axios": "^0.20.0",
+    "axios": "^0.19.2",
     "core-js": "^3.6.5",
     "echarts": "^4.9.0",
     "element-ui": "^2.13.2",

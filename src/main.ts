@@ -14,6 +14,8 @@ Vue.config.productionTip = false;
 Vue.component('PageBaseLayout', PageBaseLayout);
 
 Vue.prototype.$http = Axios;
+(Vue as any).$store = store;
+Vue.prototype.$store = store;
 
 new Vue({
   router,

@@ -10,20 +10,16 @@
     <el-form ref="form" :model="form" :rules="rules" label-width="100px">
       <el-row>
         <el-col :span='8'>
-          <el-form-item label="账户" prop="accmount"><el-input v-model="form.name"></el-input></el-form-item>
+          <el-form-item label="账户" prop="accmount"><el-input :disabled="formDisable.accmount" v-model="form.name"></el-input></el-form-item>
         </el-col>
         <el-col :span='8'>
           <el-form-item label="姓名" prop="name"><el-input v-model="form.name"></el-input></el-form-item>
         </el-col>
         <el-col :span='8'>
-          <!-- <el-form-item label="姓名拼音全拼"><el-input v-model="form.name"></el-input></el-form-item> -->
           <el-form-item label="职位"><el-input v-model="form.name"></el-input></el-form-item>
         </el-col>
       </el-row>
       <el-row>
-        <!-- <el-col :span='8'>
-          <el-form-item label="职位"><el-input v-model="form.name"></el-input></el-form-item>
-        </el-col> -->
         <el-col :span='8'>
           <el-form-item label="电话"><el-input v-model="form.name"></el-input></el-form-item>
         </el-col>
@@ -108,12 +104,15 @@ import { Vue, Component, Prop } from 'vue-property-decorator';
 })
 export default class FormBody extends Vue {
   @Prop({ default: {} }) editData!: any;
+  formDisable: any = {
+    accmount: false
+  };
   form: any = {
     name: '222',
     region: 'beijing',
     date1: '2020-09-10',
     isOpen: '',
-  }
+  };
   rules: any = {
     name: [
       { required: true, message: '请输入活动名称', trigger: 'blur' },
@@ -139,8 +138,9 @@ export default class FormBody extends Vue {
   }]
   // methods
   crated() {
-    if (this.editData && Object.keys(this.editData).length) {
+    if (this.editData && Object.keys(this.editData).length) { // 编辑修改类型
       this.form = this.editData;
+      this.formDisable.accmount = true;
     }
   };
   handleSelectionChange(val: any) {
