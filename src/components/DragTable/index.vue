@@ -61,7 +61,6 @@ export default class DragTable extends Vue {
 
   created() {
     this.tableColumn = [...this.columnList];
-    console.log('--------props:', this.$attrs.noDrag);
   }
 
   // methods

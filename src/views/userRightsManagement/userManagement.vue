@@ -1,5 +1,5 @@
 <template>
-  <div class="userRightManagement">
+  <div class="userRightManagement" v-loading="loading">
     <div class="search-bar control display_center">
       <div class="control-form">
         <el-form ref="searchform" :model="searchForm" label-width="80px">
@@ -49,13 +49,22 @@
           :resizable="false"
           align="center"
           >
-          <template v-if="item.prop === 'one'">
-            <div class="todo-btn">
+          <template slot-scope="scope">
+            <!-- 序号 -->
+            <div v-if="item.prop === 'index'">{{scope.$index + 1}}</div>
+            <!-- 操作 -->
+            <div v-else-if="item.prop === 'cus_todo'" class="todo-btn">
               <el-button type='text'>启</el-button>
-              <el-button type='text' @click="editData(item)">改</el-button>
+              <el-button type='text' @click="editData(item, scope)">改</el-button>
               <el-button type='text'>删</el-button>
               <el-button type='text'>解</el-button>
             </div>
+            <!-- 是否类型 -->
+            <div v-else-if="item.prop === 'isactivated'">
+              {{scope.row[item.prop] === 'Y' ? '是' : '否'}}
+            </div>
+            <!-- 正常展示 -->
+            <div v-else>{{scope.row[item.prop]}}</div>
           </template>
           </el-table-column>
         </template>
@@ -67,7 +76,14 @@
       :close-on-click-modal="false"
       width="85%"
       :show-close="false">
-      <FormBody v-if="dialogTableVisible" :editData={} @closeDialog="handleDrawClose" @onSubmit="saveData" />
+      <FormBody
+        v-if="dialogTableVisible"
+        :dialogType="dialogType"
+        :editData='editUserData'
+        :editUserId="editUserId"
+        @closeDialog="handleDrawClose"
+        @onSubmit="saveData"
+      />
     </el-dialog>
   </div>
 </template>
@@ -87,6 +103,7 @@ interface QueryParams {
   components: { FormBody, DragTable, ExportFileCom }
 })
 export default class UserRightManagement extends Vue {
+  loading = false;
   title = '用户管理';
   searchForm: any = {
     accmount: '',
@@ -98,14 +115,11 @@ export default class UserRightManagement extends Vue {
     pageSize: 10
   }
   tableColumnList: TableColumns[] = tableColumn;
-  tableData: any[] = [
-    { one: 'dfds', two: 'fsd', three: 'fds', four: 'fdsfsd' },
-    { one: 'dfds', two: 'fsd', three: 'fds', four: 'fdsfsd' },
-    { one: 'dfds', two: 'fsd', three: 'fds', four: 'fdsfsd' },
-    { one: 'dfds', two: 'fsd', three: 'fds', four: 'fdsfsd' },
-    { one: 'dfds', two: 'fsd', three: 'fds', four: 'fdsfsd' }
-  ];
+  tableData: any[] = [];
   dialogTableVisible = false; // 新增、修改用户
+  dialogType = 'edit'; // 新增：add, 修改：edit
+  editUserId = '';
+  editUserData: any = {};
   mounted() {
     this.queryUserData();
   };
@@ -116,31 +130,45 @@ export default class UserRightManagement extends Vue {
     return { page, pageSize, ...form };
   }
   queryUserData() {
+    if (this.loading) return;
+    this.loading = true;
     const param = this.getQueryParams();
     this.$http.get('/auth/userList', { params: param }).then((res: any) => {
-      console.log('用户列表数据', res);
+      const { data: resultData } = res;
+      if (resultData && resultData.data) {
+        this.tableData = resultData.data.length ? resultData.data : [];
+      }
+      this.loading = false;
     }).catch((err: any) => {
       console.log('查询用户列表数据失败：', err);
+      this.loading = false;
     });
-    // /auth/userList?page=0&pageSize=10
   };
-  handleSizeChange(arg: any) {
+  handleSizeChange(arg: any) { // 翻页
     const [pageSize] = arg;
     Object.assign(this.queryUserDataParam, { page: 1, pageSize });
     this.queryUserData();
     console.log('size change', pageSize);
   };
-  handleCurrentChange(arg: any) {
+  handleCurrentChange(arg: any) { // 翻页
     const [page] = arg;
     Object.assign(this.queryUserDataParam, { page });
     this.queryUserData();
     console.log('current change', page);
   }
-  editData(item: any) { // 编辑数据按钮
-    console.log('编辑：', item);
+  editData(item: any, row: any) { // 编辑数据按钮
+    const { id } = row; // 获得id
+    this.editUserId = id || '10000022';
+    this.dialogType = 'edit';
+    if (!id) {
+      this.editUserData = row;
+    } else {
+      this.editUserData = {};
+    }
     this.dialogTableVisibleToggle();
   };
   addData() { // 新增数据按钮
+    this.dialogType = 'add';
     this.dialogTableVisibleToggle();
   };
   handleDrawClose() { // 关闭前回调

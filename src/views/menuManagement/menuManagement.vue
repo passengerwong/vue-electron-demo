@@ -11,7 +11,6 @@
           <i class="el-icon-circle-plus-outline"></i>
         </el-button>
         <el-button size="mini" type="primary" @click="menuSave">保存</el-button>
-        <!-- <el-button size="medium">重置</el-button> -->
       </div>
       <div class="menu-tree-wrap">
         <el-tree
@@ -24,8 +23,12 @@
           <span class="custom-tree-node" slot-scope="{ node, data }">
             <span class="cus-label">{{ node.label }}</span>
             <span class="edit-wrap" v-if="data.isEdit">
+              名称：
               <el-input class="custom-tree-input" size="mini" type="text" placeholder="请输入名称" v-model="data.labelCopy" />
+              URL：
               <el-input class="custom-tree-input" size="mini" type="text" placeholder="请输入url" v-model="data.pathCopy" />
+              图标：
+              <el-input class="custom-tree-input" size="mini" type="text" placeholder="请输入图标" v-model="data.iconCopy" />
               <el-button size="mini" type="primary" @click="treeDataSave(data)">保存</el-button>
             </span>
             <span class="control-btn">
@@ -72,14 +75,15 @@ export default class MenuManagement extends Vue {
   treeData: any[] = [];
   treeDataCopy: any[] = [];
   created() {
-    // this.queryMenuList();
+    this.queryMenuList();
   };
   // methods
   queryMenuList() { // 查询菜单列表
-    this.$http.post('/test/queryMenu').then((res: any) => {
+    this.$http.get('/auth/listMenu').then((res: any) => {
       const { data } = res;
-      if (data) {
-        const listRes = this.processTheData(data);
+      if (data && data.code === '000000' && data.data) {
+        const resultData: any[] = data.data;
+        const listRes = this.processTheData(resultData);
         this.treeData = _.cloneDeep(listRes);
         this.treeDataCopy = _.cloneDeep(listRes);
         console.log('处理后数据', listRes);
@@ -91,9 +95,10 @@ export default class MenuManagement extends Vue {
       return list.map((item: any) => {
         item.isEdit = false; // 添加编辑属性
         // copy path 和 id 便于还原
-        item.pathCopy = item.path;
-        item.idCopy = item.id;
-        item.labelCopy = item.label;
+        item.pathCopy = item.path; // 备份path
+        item.idCopy = item.id; // 备份id
+        item.labelCopy = item.label; // 备份label
+        item.iconCopy = item.icon; // 备份图标
         if (item.children) {
           item.children = this.processTheData(item.children);
         }
@@ -124,10 +129,12 @@ export default class MenuManagement extends Vue {
   edit (data: any) { // 编辑按钮（显示隐藏输入框）
     data.isEdit = !data.isEdit; // 关闭修改条
   };
-  treeDataSave(data: any) { // 编辑保存按钮 (将copy中内容覆盖到原值)
+  treeDataSave(data: any) { // 单条编辑保存按钮 (将copy中内容覆盖到原值)
     data.label = data.labelCopy;
     data.path = data.pathCopy;
-    data.id = data.pathCopy;
+    data.icon = data.iconCopy;
+    // data.id = data.pathCopy;
+    // 重新规划id（不能手动更改，在drag的时候需要）
     data.isEdit = false;
     console.log('0000', data);
   };

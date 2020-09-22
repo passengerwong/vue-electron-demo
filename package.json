@@ -16,11 +16,13 @@
   "dependencies": {
     "@types/echarts": "^4.6.5",
     "@types/electron-devtools-installer": "^2.2.0",
+    "@types/js-md5": "^0.4.2",
     "@types/lodash": "^4.14.161",
     "axios": "^0.19.2",
     "core-js": "^3.6.5",
     "echarts": "^4.9.0",
     "element-ui": "^2.13.2",
+    "js-md5": "^0.7.3",
     "json-templater": "^1.2.0",
     "loadsh": "0.0.4",
     "vue": "^2.6.11",

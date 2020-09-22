@@ -10,46 +10,46 @@
     <el-form ref="form" :model="form" :rules="rules" label-width="100px">
       <el-row>
         <el-col :span='8'>
-          <el-form-item label="账户" prop="accmount"><el-input :disabled="formDisable.accmount" v-model="form.name"></el-input></el-form-item>
+          <el-form-item label="账户" prop="account"><el-input :disabled="formDisable.account" v-model="form.account"></el-input></el-form-item>
         </el-col>
         <el-col :span='8'>
           <el-form-item label="姓名" prop="name"><el-input v-model="form.name"></el-input></el-form-item>
         </el-col>
         <el-col :span='8'>
-          <el-form-item label="职位"><el-input v-model="form.name"></el-input></el-form-item>
+          <el-form-item label="QQ" prop="qq"><el-input v-model="form.qq"></el-input></el-form-item>
         </el-col>
       </el-row>
       <el-row>
         <el-col :span='8'>
-          <el-form-item label="电话"><el-input v-model="form.name"></el-input></el-form-item>
+          <el-form-item label="OA账户" prop="oaaccount"><el-input v-model="form.oaaccount"></el-input></el-form-item>
         </el-col>
         <el-col :span='8'>
-          <el-form-item label="邮箱"><el-input v-model="form.name"></el-input></el-form-item>
+          <el-form-item label="微信"><el-input v-model="form.wechat"></el-input></el-form-item>
         </el-col>
         <el-col :span='8'>
-          <el-form-item label="QQ"><el-input v-model="form.name"></el-input></el-form-item>
+          <el-form-item label="职位"><el-input v-model="form.position"></el-input></el-form-item>
         </el-col>
       </el-row>
       <el-row>
         <el-col :span='8'>
-          <el-form-item label="微信"><el-input v-model="form.name"></el-input></el-form-item>
+          <el-form-item label="电话"><el-input v-model="form.telephone"></el-input></el-form-item>
         </el-col>
         <el-col :span='8'>
-          <el-form-item label="OA账户"><el-input v-model="form.name"></el-input></el-form-item>
+          <el-form-item label="邮箱"><el-input v-model="form.mail"></el-input></el-form-item>
         </el-col>
         <el-col :span="8">
-          <el-form-item label="启用">
-            <el-radio-group v-model="form.isOpen">
-              <el-radio label="是"></el-radio>
-              <el-radio label="否"></el-radio>
+          <el-form-item label="启用" prop="isactivated">
+            <el-radio-group v-model="form.isactivated">
+              <el-radio label="Y">是</el-radio>
+              <el-radio label="N">否</el-radio>
             </el-radio-group>
           </el-form-item>
         </el-col>
       </el-row>
       <el-row>
         <el-col :span="8">
-          <el-form-item label="部门">
-            <el-select v-model="form.region" placeholder="请选择部门">
+          <el-form-item label="部门" prop="department">
+            <el-select v-model="form.department" placeholder="请选择部门">
               <el-option label="区域一" value="shanghai"></el-option>
               <el-option label="区域二" value="beijing"></el-option>
             </el-select>
@@ -64,7 +64,7 @@
           </el-form-item>
         </el-col>
         <el-col :span='8'>
-          <el-form-item label="备注"><el-input v-model="form.name"></el-input></el-form-item>
+          <el-form-item label="备注"><el-input v-model="form.des"></el-input></el-form-item>
         </el-col>
       </el-row>
     </el-form>
@@ -104,22 +104,30 @@ import { Vue, Component, Prop } from 'vue-property-decorator';
 })
 export default class FormBody extends Vue {
   @Prop({ default: {} }) editData!: any;
+  @Prop({ default: 'add' }) dialogType!: string;
+  @Prop({ default: '' }) editUserId!: string; // 编辑的id
   formDisable: any = {
     accmount: false
   };
-  form: any = {
-    name: '222',
-    region: 'beijing',
-    date1: '2020-09-10',
-    isOpen: '',
-  };
-  rules: any = {
-    name: [
-      { required: true, message: '请输入活动名称', trigger: 'blur' },
-      { min: 3, max: 5, message: '长度在 3 到 5 个字符', trigger: 'blur' }
+  form: any = {};
+  rules: any = { // 表单检验规则
+    account: [
+      { required: true, message: '请输入账户', trigger: 'blur' }
     ],
-    accmount: [
-      { required: true, message: '请输入活动名称', trigger: 'blur' }
+    name: [
+      { required: true, message: '请输入姓名', trigger: 'blur' }
+    ],
+    qq: [
+      { required: true, message: '请输入QQ号', trigger: 'blur' }
+    ],
+    oaaccount: [
+      { required: true, message: '请输入OA账户', trigger: 'blur' }
+    ],
+    isactivated: [
+      { required: true }
+    ],
+    department: [
+      { required: true }
     ]
   };
   multipleSelection: any[] = [];
@@ -137,18 +145,62 @@ export default class FormBody extends Vue {
     address: '上海市普陀区金沙江路 1518 弄'
   }]
   // methods
-  crated() {
-    if (this.editData && Object.keys(this.editData).length) { // 编辑修改类型
+  created() {
+    if (this.dialogType && this.dialogType === 'edit') { // 编辑
+      this.formDisable.account = true;
+      if (this.editUserId) { // 如果有id去请求
+        this.getUserData();
+        return;
+      }
       this.form = this.editData;
-      this.formDisable.accmount = true;
     }
   };
+  getUserData() { // 查询用户信息
+    this.$http.get('/auth/findUserByUserId', { params: { userId: this.editUserId } }).then((res: any) => {
+      const { data } = res;
+      if (data && data.code === '000000' && data.data) {
+        this.form = data.data || {};
+      }
+    }).catch((err: any) => {
+      console.log('-----编辑，请求用户数据失败：', err);
+    });
+  };
+  getUserRoles() { // 查询用户的角色配置
+    // this.$http.get('auth/findRolesByOA')
+  }
+  // auth/findRolesByOA
   handleSelectionChange(val: any) {
     this.multipleSelection = val;
     console.log('dfsd', this.multipleSelection);
+  };
+  validateData() {
+    const params: any = { ...this.form };
+    let msg = '';
+    if (!params.account) {
+      msg = '请输入账户';
+    } else if (!params.name) {
+      msg = '请输入姓名';
+    } else if (!params.qq) {
+      msg = '请输入QQ号';
+    } else if (!params.oaaccount) {
+      msg = '请输入OA账户';
+    } else if (!params.isactivated) {
+      msg = '请选择是否启用';
+    } else if (!params.department) {
+      msg = '请选择部门';
+    }
+    if (msg) {
+      this.$message({ message: msg, type: 'warning' });
+      return false;
+    }
+    return params;
   }
-  onSubmit() {
-    this.$emit('onSubmit');
+  onSubmit() { // 保存用户信息（新增或者编辑）
+    // 提前检验必填内容
+    const params: any = this.validateData();
+    if (params) {
+      this.$emit('onSubmit');
+    }
   }
   closeDialog() {
     this.$emit('closeDialog', false);

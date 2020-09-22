@@ -9,11 +9,16 @@ export default new Vuex.Store({
     userId: '',
     loginStatus: false
   },
+  getters: {
+    loginStatus: state => state.loginStatus,
+    userInfo: state => state.userInfo
+  },
   mutations: {
     updateUserInfo(state, userInfo) {
-      if (userInfo && Object.keys(userInfo).length) {
-        state.userInfo = userInfo;
-      }
+      state.userInfo = userInfo;
+    },
+    updateUserId(state, userId) {
+      state.userId = userId || '';
     },
     updateLoginStatus(state, status) {
       state.loginStatus = status || false;

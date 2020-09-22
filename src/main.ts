@@ -6,16 +6,13 @@ import PageBaseLayout from '@/components/layouts/pageBaseLayout.vue';
 import router from './router';
 import store from './store';
 import '@/style/common.less';
-import Axios from '@/http/index';
+// import Axios from '@/http/index';
+import '@/http/index';
 
 Vue.use(ElementUI);
 Vue.config.productionTip = false;
 
 Vue.component('PageBaseLayout', PageBaseLayout);
-
-Vue.prototype.$http = Axios;
-(Vue as any).$store = store;
-Vue.prototype.$store = store;
 
 new Vue({
   router,

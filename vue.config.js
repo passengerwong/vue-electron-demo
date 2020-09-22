@@ -1,5 +1,5 @@
 const path = require('path');
-// const devServer = require('./src/devServeConfig/devServer');
+const devServer = require('./webpackConfig/devServer');
 const resolve = (url) => path.join(__dirname, url);
 
 require('./webpackConfig/buildRoutes.ts');
@@ -71,5 +71,6 @@ module.exports = {
         return args;
       });
     }
-  }
+  },
+  devServer
 };
